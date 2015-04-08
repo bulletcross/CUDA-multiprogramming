@@ -6,7 +6,7 @@ int *final_state;
 //Kernel
 __global__  void DFA_kernal(int *t_m,int *in,int n_state,int n_sigma,int init_state,int final_state,int n,int *out) {
 	extern __shared__ int state_vectors[];
-	int i;
+	int i,j;
 	int t_id = threadIdx.x;
 	//int *state_vector = (int *)malloc(sizeof(int)*n_state);
 	//TO-DO: give this thread a part of string
@@ -16,6 +16,17 @@ __global__  void DFA_kernal(int *t_m,int *in,int n_state,int n_sigma,int init_st
 	}
 	__syncthreads();
 	//O(P) reduction
+	for(i = 1; i < blockDim.x; ++i) {
+        __syncthreads();
+        if(t_id == i) {
+            for(j=0;j<n_state;j++){
+            	state_vectors[n_state*t_id + j] = state_vectors[n_state*t_id + state_vectors[n_state*(t_id-1) + j]];
+            }
+        }
+    }
+    for(int i=0;i<n_state;i++){
+    	out[i] = state_vectors[n_state*(n-1) + i];
+    }
 
 }
  
@@ -80,7 +91,7 @@ int main()
 	dim3 dimGrid(1,1,1);
 	DFA_kernal<<<dimGrid, dimBlock, STATES*INPUT_LENGTH>>>(d_transition_matrix,d_input,STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH,d_output);
 
-	//cudaMemcpy((void *)h_out,(void *)d_output,sizeof(int)*STATES,cudaMemcpyDeviceToHost);
+	cudaMemcpy((void *)h_out,(void *)d_output,sizeof(int)*STATES,cudaMemcpyDeviceToHost);
 
 	cudaFree(d_output);
 	cudaFree(d_transition_matrix);
@@ -89,6 +100,12 @@ int main()
 	/*for(i=0;i<STATES;i++){
 		printf("%d\n",h_out[i]);
 	}*/
+	if(h_out[0]==FINAL_STATE){
+		printf("Automata is accepting the string\n");
+	}
+	else{
+		printf("String not accepted\n");
+	}
 
 	printf("All done\n");
 	return 0;
