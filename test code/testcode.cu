@@ -1,5 +1,5 @@
 #include <stdio.h>
- #include <stdlib.h>
+#include <stdlib.h>
 
 const int N = 16; 
 const int blocksize = 20; 

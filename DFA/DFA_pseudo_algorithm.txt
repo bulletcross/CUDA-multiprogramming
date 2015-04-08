@@ -1,7 +1,7 @@
 
 Assumptions:
 1. States are numbered from 0 to ... and 0 is the starting state.
-2. Input alphabet contains small letter alphabets a to z.
+2. Input alphabet contains numbers from 0 to ...
 3. Transition function must be complete.
 
 Pseudo-code DFA
