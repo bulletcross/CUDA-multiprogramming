@@ -4,15 +4,18 @@
 int *final_state;
 
 //Kernel
-__global__  void DFA_kernal(int *t_m,int *in,int n_state,int n_sigma,int init_state,int final_state,int n) {
+__global__  void DFA_kernal(int *t_m,int *in,int n_state,int n_sigma,int init_state,int final_state,int n,int *out) {
+	extern __shared__ int state_vectors[];
 	int i;
 	int t_id = threadIdx.x;
-	int *state_vector = (int *)malloc(sizeof(int)*n_state);
+	//int *state_vector = (int *)malloc(sizeof(int)*n_state);
 	//TO-DO: give this thread a part of string
 	for(i=0;i<n_state;i++){
-		state_vector[i] = t_m[n_sigma*i + in[t_id]];
+		//state_vector[i] = t_m[n_sigma*i + in[t_id]];
+		state_vectors[n_state*t_id + i] = t_m[n_sigma*i + in[t_id]];
 	}
 	__syncthreads();
+	//O(P) reduction
 
 }
  
@@ -56,10 +59,12 @@ int main()
 		printf("\n");
 	}
 	printf("\n");
+	int *h_out = (int *)malloc(sizeof(int)*STATES);
 	//////////////////////////////////////////////////////////////////////////
  	//Device memory
 	int *d_transition_matrix;
 	int *d_input;
+	int *d_output;
  	
  	//Allocating and initializing memory on GPU
 	cudaMalloc((void**)&d_transition_matrix,sizeof(int)*STATES*SIGMA);
@@ -67,14 +72,23 @@ int main()
 	
 	cudaMalloc((void**)&d_input,sizeof(int)*INPUT_LENGTH);
 	cudaMemcpy((void *)d_input,(void *)input,sizeof(int)*INPUT_LENGTH,cudaMemcpyHostToDevice);
+
+	cudaMalloc((void**)&d_output,sizeof(int)*STATES);
 	
 	//Declaring grid and block size
 	dim3 dimBlock(INPUT_LENGTH,1,1);
 	dim3 dimGrid(1,1,1);
-	DFA_kernal<<<dimGrid, dimBlock>>>(d_transition_matrix,d_input,STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH);
+	DFA_kernal<<<dimGrid, dimBlock, STATES*INPUT_LENGTH>>>(d_transition_matrix,d_input,STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH,d_output);
 
+	//cudaMemcpy((void *)h_out,(void *)d_output,sizeof(int)*STATES,cudaMemcpyDeviceToHost);
+
+	cudaFree(d_output);
 	cudaFree(d_transition_matrix);
 	cudaFree(d_input);
+
+	/*for(i=0;i<STATES;i++){
+		printf("%d\n",h_out[i]);
+	}*/
 
 	printf("All done\n");
 	return 0;
