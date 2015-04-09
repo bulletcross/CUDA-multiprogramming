@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <time.h>
 //Kernel function - Given transition matrix and a part of input string,  thread creates an array of possible states
 //Reduction of state vector is done with O(P) - order of number of threads running
 __global__  void DFA_kernal(int *t_m,int *in,int n_state,int n_sigma,int init_state,int final_state,int n,int *out,int m,int n_t) {
@@ -61,12 +61,12 @@ int main()
 	//Variables requred for transition function and input memory allocation
 	int STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH;
 	int i,j;
-
+	clock_t startTime;
 	//Taking input
 	scanf("%d %d %d %d",&STATES,&SIGMA,&FINAL_STATE,&INPUT_LENGTH);
 	
 	//Number of threads depend on optimality condition
-	int NUM_THREADS=4;
+	int NUM_THREADS=1024;
 	int ELEM_PER_THREAD= ((INPUT_LENGTH%NUM_THREADS==0) ? INPUT_LENGTH/NUM_THREADS:INPUT_LENGTH/NUM_THREADS + 1);
 	//An additional state has to be added for complete transition function
 	STATES++;
@@ -89,7 +89,7 @@ int main()
 			scanf("%d",&transition_matrix[i][j]);
 		}
 	}
-	
+	/*
 	//printing the input taken
 	for(i=0;i<INPUT_LENGTH;i++){
 		printf("%d ",input[i]);
@@ -102,7 +102,9 @@ int main()
 		printf("\n");
 	}
 	printf("\n");
-
+	*/
+	printf("%d %d %d\n",NUM_THREADS,ELEM_PER_THREAD,INPUT_LENGTH);
+	
 	//final output memory requred by device 
 	int *h_out = (int *)malloc(sizeof(int)*STATES);
 
@@ -123,18 +125,17 @@ int main()
 	//Declaring grid and block size
 	dim3 dimBlock(NUM_THREADS,1,1);
 	dim3 dimGrid(1,1,1);
-
+	startTime = clock();
 	//Calling Kernal funtion to execute in on device
-	DFA_kernal<<<dimGrid, dimBlock, STATES*NUM_THREADS>>>(d_transition_matrix,d_input,STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH,d_output,ELEM_PER_THREAD,NUM_THREADS);
-
+	DFA_kernal<<<dimGrid, dimBlock, STATES*NUM_THREADS*sizeof(int)>>>(d_transition_matrix,d_input,STATES,SIGMA,INITIAL_STATE,FINAL_STATE,INPUT_LENGTH,d_output,ELEM_PER_THREAD,NUM_THREADS);
 	//Copy back the computed result from device to host
 	cudaMemcpy((void *)h_out,(void *)d_output,sizeof(int)*STATES,cudaMemcpyDeviceToHost);
-
+	printf("Time for parallel DFA with O(n) reduction is %lf\n",(double)(( clock() - startTime ) / (double)CLOCKS_PER_SEC));
 	//Freeing-up the GPU intialized memory
 	cudaFree(d_output);
 	cudaFree(d_transition_matrix);
 	cudaFree(d_input);
-
+	
 	//Print the compueted output
 	for(i=0;i<STATES;i++){
 		printf("%d\n",h_out[i]);
