@@ -1,0 +1,10 @@
+Overview of operation to be performed:
+
+Find the minimum and maximum value of Luminance- Min and Max Reduce operation
+Subtract to find the range
+Generate a histogram of all the values in the Luminance channel using the formula:
+	 bin = (lum[i] - lumMin) / lumRange * numBins - Histogram operation
+Exclusive scan (prefix sum) on the histogram to get the cumulative distribution of
+luminance values
+
+http://en.wikipedia.org/wiki/Histogram_equalization
