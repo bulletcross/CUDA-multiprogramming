@@ -9,7 +9,6 @@
 
 using namespace std;
 
-#define MAX_SIZE 10000
 #define MAT_SIZE 1024
 
 int data1[MAT_SIZE*MAT_SIZE];
@@ -120,15 +119,16 @@ int main(){
     return 0;
   }
   FILE *fp;
-  char fileName[] = "MM_naive.cl";
-  char source_str[MAX_SIZE];
-  size_t source_size;
-  fp = fopen(fileName, "r");
+  fp = fopen("MM_naive.cl", "r");
   if(!fp){
     cout << "Failed to load kernel" << endl;
     return 0;
   }
-  source_size = fread(source_str, 1, MAX_SIZE, fp);
+  fseek(fp, 0, SEEK_END);
+  size_t source_size = ftell(fp);
+  rewind(fp);
+  char* source_str = (char*)malloc(source_size);
+  fread(source_str, 1, source_size, fp);
   fclose(fp);
   cout << "File read success, source size is " << source_size << endl;
   cout << source_str << endl;
