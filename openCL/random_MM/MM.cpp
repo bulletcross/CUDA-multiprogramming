@@ -72,8 +72,8 @@ bool gpu_init(void){
   }
   cout << "Command queue created" << endl;
 
-  memobj_a = clCreateBuffer(context, CL_MEM_READ_WRITE, MAT_SIZE*MAT_SIZE*sizeof(int), NULL, &err);
-  memobj_b = clCreateBuffer(context, CL_MEM_READ_WRITE, MAT_SIZE*MAT_SIZE*sizeof(int), NULL, &err);
+  memobj_a = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, MAT_SIZE*MAT_SIZE*sizeof(int), data1, &err);
+  memobj_b = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, MAT_SIZE*MAT_SIZE*sizeof(int), data2, &err);
   memobj_c = clCreateBuffer(context, CL_MEM_READ_WRITE, MAT_SIZE*MAT_SIZE*sizeof(int), NULL, &err);
   if(err != CL_SUCCESS){
     cout << "Error creating device memory buffer" << endl;
@@ -112,7 +112,7 @@ int main(){
       }
     }
   }
-  cpu_time = (float)(clock()-temp)/CLOCKS_PER_SEC;
+  cpu_time = (float)(clock()-temp)/(CLOCKS_PER_SEC/1000);
   //Setting up gpu for computation
   if(!gpu_init()){
     cout << "Error while gpu init" << endl;
@@ -181,7 +181,7 @@ int main(){
     cout << "GPU computation done" << endl;
   }
   err = clFinish(command_queue);
-  gpu_time = (float)(clock()-temp)/CLOCKS_PER_SEC;
+  gpu_time = (float)(clock()-temp)/(CLOCKS_PER_SEC/1000);
   //Reading gpu computed Results
   err = clEnqueueReadBuffer(command_queue, memobj_c, CL_TRUE, 0, MAT_SIZE*MAT_SIZE*sizeof(int), gpu_output, 0, NULL, NULL);
   if(err != CL_SUCCESS){
@@ -212,6 +212,12 @@ int main(){
     cout << "CPU TIME: " << cpu_time << "  GPU TIME: " << gpu_time << endl;
   }
   else{
+    /*for(int i=0;i<MAT_SIZE;i++){
+      for(int j=0;j<MAT_SIZE;j++){
+        cout << "(" <<cpu_output[i*1024 + j] << "," << gpu_output[i*1024 + j] << ") ";
+      }
+      cout << endl;
+    }*/
     cout << "Results does not match" << endl;
   }
   return 0;
