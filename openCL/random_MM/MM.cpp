@@ -119,7 +119,7 @@ int main(){
     return 0;
   }
   FILE *fp;
-  fp = fopen("MM_naive.cl", "r");
+  fp = fopen("MM_level2.cl", "r");
   if(!fp){
     cout << "Failed to load kernel" << endl;
     return 0;
@@ -143,14 +143,17 @@ int main(){
   }
   err = clBuildProgram(prog, 1, &device_id, NULL, NULL, NULL); //fourth arg is compile options
   if(err != CL_SUCCESS){
-    cout << "Unable to compile kernel program" << endl;
+    cout << "Unable to compile kernel program " << err << endl;
+    char *log = new char[1024];
+    err = clGetProgramBuildInfo(prog, device_id, CL_PROGRAM_BUILD_LOG, 1024, log, NULL);
+    cout << log << endl;
     return 0;
   }
   else{
     cout << "Program building done" << endl;
   }
   cl_kernel kernel = NULL;
-  kernel = clCreateKernel(prog, "MM_naive", &err);
+  kernel = clCreateKernel(prog, "MM_level2", &err);
   if(err != CL_SUCCESS){
     cout << "Unable to create kernel object" << endl;
     return 0;
