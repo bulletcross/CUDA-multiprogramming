@@ -119,7 +119,7 @@ int main(){
     return 0;
   }
   FILE *fp;
-  fp = fopen("MM_level3.cl", "r");
+  fp = fopen("MM_level4.cl", "r");
   if(!fp){
     cout << "Failed to load kernel" << endl;
     return 0;
@@ -161,9 +161,9 @@ int main(){
     free(bin);
   }
   cl_kernel kernel = NULL;
-  kernel = clCreateKernel(prog, "MM_level3", &err);
+  kernel = clCreateKernel(prog, "MM_level4", &err);
   if(err != CL_SUCCESS){
-    cout << "Unable to create kernel object" << endl;
+    cout << "Unable to create kernel object " << err << endl;
     return 0;
   }
   else{
@@ -198,7 +198,7 @@ int main(){
   //Reading gpu computed Results
   err = clEnqueueReadBuffer(command_queue, memobj_c, CL_TRUE, 0, MAT_SIZE*MAT_SIZE*sizeof(int), gpu_output, 0, NULL, NULL);
   if(err != CL_SUCCESS){
-    cout << "Data cannot be read" << endl;
+    cout << "Data cannot be read " << err << endl;
     return 0;
   }
   else{
@@ -225,12 +225,12 @@ int main(){
     cout << "CPU TIME: " << cpu_time << "  GPU TIME: " << gpu_time << endl;
   }
   else{
-    /*for(int i=0;i<MAT_SIZE;i++){
+    for(int i=0;i<MAT_SIZE;i++){
       for(int j=0;j<MAT_SIZE;j++){
         cout << "(" <<cpu_output[i*1024 + j] << "," << gpu_output[i*1024 + j] << ") ";
       }
       cout << endl;
-    }*/
+    }
     cout << "Results does not match" << endl;
   }
   return 0;
