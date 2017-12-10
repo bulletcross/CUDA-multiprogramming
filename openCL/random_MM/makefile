@@ -14,4 +14,4 @@ $(OBJ): $(TARGET).cpp
 	g++ -c $(TARGET).cpp $(INCLUDES) $(LIBRARY_PATH)
 
 clean:
-	rm *o $(TARGET)
+	rm *o $(TARGET) *ptx

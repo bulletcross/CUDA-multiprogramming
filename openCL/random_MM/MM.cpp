@@ -119,7 +119,7 @@ int main(){
     return 0;
   }
   FILE *fp;
-  fp = fopen("MM_level2.cl", "r");
+  fp = fopen("MM_level3.cl", "r");
   if(!fp){
     cout << "Failed to load kernel" << endl;
     return 0;
@@ -151,9 +151,17 @@ int main(){
   }
   else{
     cout << "Program building done" << endl;
+    size_t bin_size;
+    err = clGetProgramInfo(prog, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &bin_size, NULL);
+    char *bin = new char[bin_size];
+    err = clGetProgramInfo(prog, CL_PROGRAM_BINARIES, sizeof(unsigned char *), &bin, NULL);
+    fp = fopen("MM.ptx", "wb");
+    fwrite(bin, sizeof(char), bin_size, fp);
+    fclose(fp);
+    free(bin);
   }
   cl_kernel kernel = NULL;
-  kernel = clCreateKernel(prog, "MM_level2", &err);
+  kernel = clCreateKernel(prog, "MM_level3", &err);
   if(err != CL_SUCCESS){
     cout << "Unable to create kernel object" << endl;
     return 0;
@@ -171,8 +179,10 @@ int main(){
   else{
     cout << "Kernel arguments set" << endl;
   }
-  size_t localWorkSize[2] = {16, 16};
-  size_t globalWorkSize[2] = {MAT_SIZE, MAT_SIZE};
+  //size_t localWorkSize[2] = {16, 16}; //This is for level1 and MM_level2
+  size_t localWorkSize[2] = {16, 16/4};
+  //size_t globalWorkSize[2] = {MAT_SIZE, MAT_SIZE}; //This is for level1 and level2
+  size_t globalWorkSize[2] = {MAT_SIZE, MAT_SIZE/4};
   //Running matrix multiplication on gpu
   temp = clock();
   err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
