@@ -165,7 +165,7 @@ int main(){
       cpu_output[i*N + j] = input[j*M + i];
     }
   }
-  cpu_time = (float)(clock()-temp)/(CLOCKS_PER_SEC/1000);
+  cpu_time = (float)(clock()-temp);
 
   //Setting up gpu for computation
   if(!gpu_init()){
@@ -206,7 +206,7 @@ int main(){
     cout << "GPU computation done" << endl;
   }
   err = clFinish(command_queue);
-  gpu_time = (float)(clock()-temp)/(CLOCKS_PER_SEC/1000);
+  gpu_time = (float)(clock()-temp);
   //Reading gpu computed Results
   err = clEnqueueReadBuffer(command_queue, memobj_b, CL_TRUE, 0, M*N*sizeof(int), gpu_output, 0, NULL, NULL);
   if(err != CL_SUCCESS){
