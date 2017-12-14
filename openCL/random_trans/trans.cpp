@@ -11,9 +11,9 @@ using namespace std;
 
 
 int N = 1024;
-int M = 512;
+int M = 1024;
 #define N_size 1024
-#define M_size 512
+#define M_size 1024
 int input[N_size*M_size];
 int gpu_output[M_size*N_size];
 int cpu_output[M_size*N_size];
@@ -173,7 +173,7 @@ int main(){
     return 0;
   }
   //Setup Program
-  if(!setup_program("trans_level1")){
+  if(!setup_program("trans_level2")){
     cout << "Could not setup program" << endl;
     return 0;
   }
@@ -193,8 +193,8 @@ int main(){
 
   /*int nr_tile_x = 128;
   int nr_tile_y = 128;*/
-  size_t localWorkSize[2] = {32, 16};
-  size_t globalWorkSize[2] = {1024, 512};
+  size_t localWorkSize[2] = {32, 32};
+  size_t globalWorkSize[2] = {1024, 1024};
   //Performing transpose on gpu
   temp = clock();
   err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
