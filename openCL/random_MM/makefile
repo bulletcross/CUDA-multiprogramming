@@ -1,5 +1,5 @@
-TARGET  := MM
-OBJ := MM.o
+TARGET  := MM_adv
+OBJ := MM_adv.o
 
 INCLUDES    := -I /usr/local/cuda/include
 LIBRARY_PATH    := -L /usr/lib64/
