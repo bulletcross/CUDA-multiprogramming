@@ -16,11 +16,11 @@ __kernel void MM_level5(__global const int* A, __global const int* B, __global i
   for(int tile = 0; tile<64; tile++){
     for(int copy_load = 0; copy_load<2; copy_load++){
       int a_x = x_group*32 + x_local;
-      int a_y = tile*16 + y_local*copy_load;
+      int a_y = tile*16 + copy_load*8 + y_local;
       int b_x = y_group*32 + x_local;
-      int b_y = tile*16 + y_local*copy_load;
-      A_tile_temp[x_local][y_local*copy_load] = A[a_x*1024 + a_y];
-      B_tile_temp[y_local*copy_load][x_local] = B[b_x*1024 + b_y];
+      int b_y = tile*16 + copy_load*8 + y_local;
+      A_tile_temp[x_local][copy_load*8 + y_local] = A[a_x*1024 + a_y];
+      B_tile_temp[copy_load*8 + y_local][x_local] = B[b_x*1024 + b_y];
     }
     barrier(CLK_LOCAL_MEM_FENCE);
     for(int k = 0; k<16; k++){

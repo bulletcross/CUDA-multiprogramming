@@ -18,7 +18,7 @@ int K = 1024;
 
 int data1[M_size*K_size];
 int data2[K_size*N_size];
-int data2_trans[N_size*K_size];
+//int data2_trans[N_size*K_size];
 int gpu_output[M_size*N_size];
 int cpu_output[M_size*N_size];
 
@@ -290,6 +290,20 @@ int main(){
     cout << "GPU computation done" << endl;
   }
   err = clFinish(command_queue);
+  /*err = clEnqueueReadBuffer(command_queue, memobj_b_trans, CL_TRUE, 0, N*K*sizeof(int), data2_trans, 0, NULL, NULL);
+  bool trans_check = true;
+  for(int i=0;i<N;i++){
+    for(int j=0;j<K;j++){
+      if(data2_trans[i*K + j] != data2[j*N + i]){
+        trans_check = false;
+        break;
+      }
+    }
+    if(!trans_check){
+      cout << "Wrongly transpose" << endl;
+      break;
+    }
+  }*/
   err = clEnqueueNDRangeKernel(command_queue, kernel, 2, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
   if(err != CL_SUCCESS){
     cout << "Task cannot be enqueued " << err << endl;
@@ -302,6 +316,7 @@ int main(){
   gpu_time = (float)(clock()-temp);
   //Reading gpu computed Results
   err = clEnqueueReadBuffer(command_queue, memobj_c, CL_TRUE, 0, M*N*sizeof(int), gpu_output, 0, NULL, NULL);
+
   if(err != CL_SUCCESS){
     cout << "Data cannot be read " << err << endl;
     return 0;
@@ -328,12 +343,12 @@ int main(){
     cout << "CPU TIME: " << cpu_time << "  GPU TIME: " << gpu_time << endl;
   }
   else{
-    /*for(int i=0;i<M;i++){
+    for(int i=0;i<M;i++){
       for(int j=0;j<N;j++){
         cout << "(" <<cpu_output[i*N + j] << "," << gpu_output[i*N + j] << ") ";
       }
       cout << endl;
-    }*/
+    }
     cout << "Results does not match" << endl;
   }
   return 0;
