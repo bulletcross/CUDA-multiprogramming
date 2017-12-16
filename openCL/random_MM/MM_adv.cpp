@@ -231,12 +231,11 @@ int main(){
 
   //Performing multiplication on cpu
   temp = clock();
-  temp = clock();
   for(int i=0;i<M_size;i++){
-    for(int j=0;j<K_size;j++){
-      cpu_output[i*K_size + j] = 0;
-      for(int k=0;k<N_size;k++){
-        cpu_output[i*N_size + j] += data1[i*K_size + k]*data2[k*N_size + j];
+    for(int j=0;j<N_size;j++){
+      cpu_output[i*N_size + j] = 0;
+      for(int k=0;k<K_size;k++){
+        cpu_output[i*K_size + j] += data1[i*K_size + k]*data2[k*N_size + j];
       }
     }
   }
@@ -248,7 +247,7 @@ int main(){
     return 0;
   }
   //Setup Program
-  if(!setup_program("MM_level5_2" , "trans_level2")){
+  if(!setup_program("MM_level6" , "trans_level2")){
     cout << "Could not setup program" << endl;
     return 0;
   }
@@ -276,9 +275,9 @@ int main(){
   size_t localWorkSize_trans[2] = {32, 32};
   size_t globalWorkSize_trans[2] = {1024, 1024};
 
-  size_t WPT = 4;
-  size_t localWorkSize[2] = {32, 32/WPT};
-  size_t globalWorkSize[2] = {1024, 1024/WPT};
+  size_t WPT = 8;
+  size_t localWorkSize[2] = {128/WPT, 128/WPT};
+  size_t globalWorkSize[2] = {1024/WPT, 1024/WPT};
   //Performing transpose on gpu
   temp = clock();
   err = clEnqueueNDRangeKernel(command_queue, kernel_trans, 2, NULL, globalWorkSize_trans, localWorkSize_trans, 0, NULL, NULL);
@@ -345,7 +344,10 @@ int main(){
   else{
     for(int i=0;i<M;i++){
       for(int j=0;j<N;j++){
-        cout << "(" <<cpu_output[i*N + j] << "," << gpu_output[i*N + j] << ") ";
+        //cout << "(" <<cpu_output[i*N + j] << "," << gpu_output[i*N + j] << ") ";
+        if(cpu_output[i*N + j]!=gpu_output[i*N + j]){
+          cout << " ( " << i << "," << j << " ) " << endl;
+        }
       }
       cout << endl;
     }
