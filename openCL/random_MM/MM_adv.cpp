@@ -221,11 +221,13 @@ int main(){
   for(int i=0;i<M_size;i++){
     for(int j=0;j<N_size;j++){
       data1[i*N + j] = rand()%100;
+      //data1[i*N + j] = 1;
     }
   }
   for(int i=0;i<N_size;i++){
     for(int j=0;j<M_size;j++){
       data2[i*M + j] = rand()%100;
+      //data2[i*N + j] = 2;
     }
   }
 
@@ -344,10 +346,10 @@ int main(){
   else{
     for(int i=0;i<M;i++){
       for(int j=0;j<N;j++){
-        //cout << "(" <<cpu_output[i*N + j] << "," << gpu_output[i*N + j] << ") ";
-        if(cpu_output[i*N + j]!=gpu_output[i*N + j]){
+        cout << "(" <<cpu_output[i*N + j] << "," << gpu_output[i*N + j] << ") ";
+        /*if(cpu_output[i*N + j]!=gpu_output[i*N + j]){
           cout << " ( " << i << "," << j << " ) " << endl;
-        }
+        }*/
       }
       cout << endl;
     }
