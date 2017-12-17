@@ -249,7 +249,7 @@ int main(){
     return 0;
   }
   //Setup Program
-  if(!setup_program("MM_level6" , "trans_level2")){
+  if(!setup_program("MM_level7" , "trans_level2")){
     cout << "Could not setup program" << endl;
     return 0;
   }

@@ -60,7 +60,6 @@ __kernel void MM_level6(__global const int* A, __global const int* B, __global i
     }
     barrier(CLK_LOCAL_MEM_FENCE);
   }
-  barrier(CLK_LOCAL_MEM_FENCE);
   for(int load_x = 0; load_x<8; load_x++){
     for(int load_y = 0; load_y<8; load_y++){
       C[(x_group*128 + load_x*16 + x_local)*1024 + y_group*128 + load_y*16 + y_local] = ret[load_x][load_y];
